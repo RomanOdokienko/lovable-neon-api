@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Pool } from 'pg';
 
 const pool = new Pool({
@@ -6,23 +6,25 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
-export async function POST(req: NextRequest) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Метод не поддерживается' });
+  }
+
+  const { participant, date, status } = req.body;
+
+  if (!participant || !date || !status) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+
   try {
-    const body = await req.json();
-    const { participant, date, status } = body;
-
-    if (!participant || !date || !status) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
-    }
-
     await pool.query(
       'INSERT INTO execution (participant, date, status) VALUES ($1, $2, $3)',
       [participant, date, status]
     );
-
-    return NextResponse.json({ success: true }, { status: 201 });
-  } catch (err) {
-    console.error('Ошибка при добавлении:', err);
-    return NextResponse.json({ error: 'Ошибка при добавлении записи' }, { status: 500 });
+    return res.status(201).json({ success: true });
+  } catch (error) {
+    console.error('Ошибка при добавлении:', error);
+    return res.status(500).json({ error: 'Ошибка при добавлении записи' });
   }
 }
