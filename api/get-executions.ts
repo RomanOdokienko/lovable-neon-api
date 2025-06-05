@@ -9,6 +9,10 @@ const pool = new Pool({
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { rows } = await pool.query('SELECT * FROM execution');
+
+    // 👇 вот эта строка добавляет CORS-заголовок
+    res.setHeader("Access-Control-Allow-Origin", "*");
+
     res.status(200).json(rows);
   } catch (error) {
     res.status(500).json({ error: 'Ошибка при подключении к базе' });
