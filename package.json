@@ -1,7 +1,8 @@
 {
   "name": "lovable-neon-api",
   "version": "1.0.0",
-  "type": "module",
+  "main": "index.js",
+  "license": "MIT",
   "dependencies": {
     "pg": "^8.11.3"
   }
