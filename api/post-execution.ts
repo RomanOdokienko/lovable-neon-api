@@ -12,7 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end(); // 👈 важный ответ на preflight
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -26,14 +26,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-     `INSERT INTO execution (participant, date, status)
-   VALUES ($1, $2, $3)
-   ON CONFLICT (participant, date) DO NOTHING`,
-  [participant, date, status]
+    await pool.query(
+      `INSERT INTO execution (participant, date, status)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (participant, date) DO NOTHING`,
+      [participant, date, status]
     );
     return res.status(201).json({ success: true });
   } catch (error) {
-    console.error(error);
+    console.error("DB insert error:", error);
     return res.status(500).json({ error: 'DB insert error' });
   }
 }
