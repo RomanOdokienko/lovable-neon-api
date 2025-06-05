@@ -26,9 +26,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    await pool.query(
-      'INSERT INTO execution (participant, date, status) VALUES ($1, $2, $3)',
-      [participant, date, status]
+     `INSERT INTO execution (participant, date, status)
+   VALUES ($1, $2, $3)
+   ON CONFLICT (participant, date) DO NOTHING`,
+  [participant, date, status]
     );
     return res.status(201).json({ success: true });
   } catch (error) {
