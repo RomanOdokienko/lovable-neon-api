@@ -7,6 +7,8 @@ const pool = new Pool({
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // 🔓 добавляем CORS
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Метод не поддерживается' });
   }
